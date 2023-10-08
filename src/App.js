@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch,
+} from "react-router-dom";
 
-function App() {
+import { AuthContext } from "./Shared/Context/auth-context";
+import { useAuth } from "./Shared/Hooks/auth-hook";
+
+import Game from "./Game/Pages/Game";
+import Auth from "./Users/Pages/Auth";
+
+const App = () => {
+  const { token, login, logout, userId, user } = useAuth();
+
+  let routes;
+  if (!token) {
+    routes = (
+      <Switch>
+        <Route path="/" exact>
+          <Auth />
+        </Route>
+        <Redirect to="/" />
+      </Switch>
+    );
+  } else {
+    routes = (
+      <Switch>
+        <Route path="/" exact>
+          <Game />
+        </Route>
+        <Redirect to="/" />
+      </Switch>
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: !!token,
+        token: token,
+        userId: userId,
+        login: login,
+        logout: logout,
+        user: user,
+      }}
+    >
+      <Router>{routes}</Router>
+    </AuthContext.Provider>
   );
-}
+};
 
 export default App;
